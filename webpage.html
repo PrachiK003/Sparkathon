@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Prediction</title>
+    <link rel="stylesheet" href="webpage.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Walmart Sales Prediction Tool</h1>
+    </div>
+
+    <div class="container">
+        <div class="left-section">
+            <h2>Set Sales for Last Weeks</h2>
+
+            <!-- Product Dropdown -->
+            <div class="dropdown-container">
+                <label for="product">Select Product:</label>
+                <select id="product" class="dropdown">
+                    <option value="product1">Product 1</option>
+                    <option value="product2">Product 2</option>
+                    <option value="product3">Product 3</option>
+                    <option value="product4">Product 4</option>
+                </select>
+            </div>
+
+            <!-- Store Dropdown -->
+            <div class="dropdown-container">
+                <label for="store">Select Store:</label>
+                <select id="store" class="dropdown">
+                    <option value="store1">Store 1</option>
+                    <option value="store2">Store 2</option>
+                    <option value="store3">Store 3</option>
+                    <option value="store4">Store 4</option>
+                </select>
+            </div>
+
+            <div class="slider-container">
+                <label for="week1">Sales in Week 1:</label>
+                <input type="range" id="week1" min="0" max="1000" value="500" class="slider">
+                <span id="value1" class="slider-value">500</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="week2">Sales in Week 2:</label>
+                <input type="range" id="week2" min="0" max="1000" value="500" class="slider">
+                <span id="value2" class="slider-value">500</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="week3">Sales in Week 3:</label>
+                <input type="range" id="week3" min="0" max="1000" value="500" class="slider">
+                <span id="value3" class="slider-value">500</span>
+            </div>
+
+            <div class="slider-container">
+                <label for="week4">Sales in Week 4:</label>
+                <input type="range" id="week4" min="0" max="1000" value="500" class="slider">
+                <span id="value4" class="slider-value">500</span>
+            </div>
+
+            <div class="prediction">
+                <h2>Predicted Sales for Coming Weeks</h2>
+                <p>Week 5: <span id="predWeek5">N/A</span></p>
+                <p>Week 6: <span id="predWeek6">N/A</span></p>
+                <p>Week 7: <span id="predWeek7">N/A</span></p>
+            </div>
+
+            <button id="predictBtn">Predict Sales</button>
+        </div>
+
+        <div class="right-section">
+            <h2>Prediction Graph and Accuracy</h2>
+            <div class="graph-placeholder">
+                <p>Graph showing predicted vs. actual sales</p>
+                <p>[Dummy Graph]</p>
+            </div>
+            <div class="accuracy-placeholder">
+                <p>Model Accuracy: 85%</p>
+                <p>Mean Squared Error: 0.02</p>
+                <p>R-Squared: 0.75</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        const sliders = document.querySelectorAll('.slider');
+        sliders.forEach((slider, index) => {
+            const valueSpan = document.getElementById(`value${index + 1}`);
+            slider.addEventListener('input', () => {
+                valueSpan.textContent = slider.value;
+            });
+        });
+
+        document.getElementById('predictBtn').addEventListener('click', () => {
+            document.getElementById('predWeek5').textContent = "1000";
+            document.getElementById('predWeek6').textContent = "900";
+            document.getElementById('predWeek7').textContent = "850";
+        });
+    </script>
+</body>
+</html>
