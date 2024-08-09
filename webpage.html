@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Prediction</title>
     <link rel="stylesheet" href="webpage.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="top-bar">
@@ -74,8 +75,7 @@
         <div class="right-section">
             <h2>Prediction Graph and Accuracy</h2>
             <div class="graph-placeholder">
-                <p>Graph showing predicted vs. actual sales</p>
-                <p>[Dummy Graph]</p>
+                <canvas id="supplierComparisonChart" class="supplier-chart"></canvas>
             </div>
             <div class="accuracy-placeholder">
                 <p>Model Accuracy: 85%</p>
@@ -85,7 +85,160 @@
         </div>
     </div>
 
+    <div class="supplier-section">
+        <h2>Supplier Ratings</h2>
+        <div id="supplierInfo"></div>
+        <div class="rating-details">
+            <table class="rating-table">
+                <thead>
+                    <tr>
+                        <th>Supplier</th>
+                        <th>Cost</th>
+                        <th>Time</th>
+                        <th>Defects</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody id="ratingTableBody">
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script>
+        
+        const supplierData = {
+            product1: {
+                suppliers: ['Supplier A', 'Supplier B', 'Supplier C', 'Supplier D'],
+                cost: [10, 12, 9, 11],
+                time: [3, 4, 2, 5],
+                defects: [1, 0.5, 2, 0.8]
+            },
+            product2: {
+                suppliers: ['Supplier A', 'Supplier B', 'Supplier C', 'Supplier D'],
+                cost: [8, 11, 10, 9],
+                time: [4, 3, 2, 6],
+                defects: [1.5, 1, 0.8, 0.7]
+            },
+            product3: {
+                suppliers: ['Supplier A', 'Supplier B', 'Supplier C', 'Supplier D'],
+                cost: [9, 10, 11, 7],
+                time: [2, 3, 4, 5],
+                defects: [0.9, 1.1, 0.6, 1.2]
+            },
+            product4: {
+                suppliers: ['Supplier A', 'Supplier B', 'Supplier C', 'Supplier D'],
+                cost: [10, 8, 9, 12],
+                time: [3, 2, 5, 4],
+                defects: [0.5, 1, 1.3, 0.9]
+            }
+        };
+
+        
+        function calculateSupplierRating(cost, defects, time, leadTime) {
+            const costPerUnitWeight = 0.4;
+            const defectRateWeight = 0.3;
+            const fulfillmentTimeWeight = 0.2;
+            const leadTimeWeight = 0.1;
+
+            return costPerUnitWeight * (1 / cost) +
+                   defectRateWeight * (1 / (defects + 1)) + 
+                   fulfillmentTimeWeight * (1 / time) +
+                   leadTimeWeight * (1 / (leadTime + 1)); 
+        }
+
+        
+        let supplierChart;
+        function createSupplierComparisonChart(data) {
+            const ctx = document.getElementById('supplierComparisonChart').getContext('2d');
+            if (supplierChart) {
+                supplierChart.destroy();
+            }
+            supplierChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.suppliers,
+                    datasets: [
+                        {
+                            label: 'Cost ($/unit)',
+                            data: data.cost,
+                            backgroundColor: '#004C91',
+                            borderColor: '#003F5F',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Time (days)',
+                            data: data.time,
+                            backgroundColor: '#FFC220',
+                            borderColor: '#FF9900',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Defects (%)',
+                            data: data.defects,
+                            backgroundColor: '#0084C8',
+                            borderColor: '#006EB8',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        
+        document.getElementById('product').addEventListener('change', function () {
+            const selectedProduct = this.value;
+            const data = supplierData[selectedProduct];
+
+            
+            const ratings = data.suppliers.map((_, i) => calculateSupplierRating(data.cost[i], data.defects[i], data.time[i], 1)); // Assume lead time of 1 for simplicity
+            const bestSupplierIndex = ratings.indexOf(Math.max(...ratings));
+            const bestSupplier = data.suppliers[bestSupplierIndex];
+
+            
+            document.getElementById('supplierInfo').innerHTML = `
+                <h3>Best Supplier: ${bestSupplier}</h3>
+                <p><strong>Cost per Unit:</strong> $${data.cost[bestSupplierIndex]}</p>
+                <p><strong>Order Fulfillment Time:</strong> ${data.time[bestSupplierIndex]} days</p>
+                <p><strong>Defect Rate:</strong> ${data.defects[bestSupplierIndex]}%</p>
+                <p class="supplier-rating"><strong>Rating:</strong> ${ratings[bestSupplierIndex].toFixed(2)}</p>
+            `;
+
+            
+            createSupplierComparisonChart(data);
+
+            
+            const tableBody = document.getElementById('ratingTableBody');
+            tableBody.innerHTML = data.suppliers.map((supplier, i) => `
+                <tr>
+                    <td>${supplier}</td>
+                    <td>$${data.cost[i]}</td>
+                    <td>${data.time[i]} days</td>
+                    <td>${data.defects[i]}%</td>
+                    <td>${ratings[i].toFixed(2)}</td>
+                </tr>
+            `).join('');
+        });
+
+        
+        document.getElementById('product').dispatchEvent(new Event('change'));
+
         
         const sliders = document.querySelectorAll('.slider');
         sliders.forEach((slider, index) => {
@@ -95,6 +248,7 @@
             });
         });
 
+        
         document.getElementById('predictBtn').addEventListener('click', () => {
             document.getElementById('predWeek5').textContent = "1000";
             document.getElementById('predWeek6').textContent = "900";
